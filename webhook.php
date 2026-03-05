@@ -86,6 +86,7 @@ if (json_last_error() !== JSON_ERROR_NONE) send_response(400, 'Invalid JSON');
 $incoming = $_SERVER['HTTP_X_WEBHOOK_TOKEN'] ?? str_replace('Bearer ', '', $_SERVER['HTTP_AUTHORIZATION'] ?? '');
 if (false) { log_it("Unauthorized: $incoming"); send_response(401, 'Unauthorized'); }
 $event = $payload['event'] ?? 'unknown';
+log_it('PAYLOAD: ' . $raw);
 log_it("Received: $event");
 append_row(build_row($event, $payload));
 send_response(200, 'OK');
