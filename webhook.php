@@ -1,5 +1,5 @@
 <?php
-define('WEBHOOK_TOKEN',        'DIYQGZdx3ntkm5Lj9MO0vFSpe8AowcWK');
+define('WEBHOOK_TOKEN',        'DlYQGZdx3ntkm5Lj9MO0vFSpe8AowcWK');
 define('SERVICE_ACCOUNT_JSON', '/var/www/secrets/service-account.json');
 define('SPREADSHEET_ID',       '13GowsP1BytWKaQwJb76jE1j346HxJ_rn1XEjvEj2J0Q');
 define('SHEET_NAME', 'Events');
