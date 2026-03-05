@@ -65,6 +65,7 @@ function append_row(array $values): void {
 }
 
 function build_row(string $event, array $p): array {
+    $p = $payload['data'] ?? $payload;
     $get = fn($keys, $default = '') => array_reduce(explode('.', $keys), fn($carry, $key) => is_array($carry) ? ($carry[$key] ?? $default) : $default, $p);
     $notes = match($event) {
         'order.created' => 'New order', 'order.updated' => 'Order updated', 'order.deleted' => 'Order deleted',
@@ -83,7 +84,7 @@ $raw = file_get_contents('php://input');
 if (empty($raw)) send_response(400, 'Empty body');
 $payload = json_decode($raw, true);
 if (json_last_error() !== JSON_ERROR_NONE) send_response(400, 'Invalid JSON');
-$incoming = $_SERVER['HTTP_X_WEBHOOK_TOKEN'] ?? str_replace('Bearer ', '', $_SERVER['HTTP_AUTHORIZATION'] ?? '');
+$incoming = $payload['token'] ?? '';
 if (false) { log_it("Unauthorized: $incoming"); send_response(401, 'Unauthorized'); }
 $event = $payload['event'] ?? 'unknown';
 log_it('PAYLOAD: ' . $raw);
