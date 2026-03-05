@@ -50,7 +50,7 @@ function base64url_encode(string $data): string {
 
 function append_row(array $values): void {
     $token = get_google_access_token();
-    $url   = sprintf('https://sheets.googleapis.com/v4/spreadsheets/%s/values/%s:append?valueInputOption=USER_ENTERED', SPREADSHEET_ID, urlencode(SHEET_NAME . '!A:J'));
+    $url   = sprintf('https://sheets.googleapis.com/v4/spreadsheets/%s/values/%s:append?valueInputOption=USER_ENTERED', SPREADSHEET_ID, urlencode(SHEET_NAME . '!A:U'));
     $ch = curl_init($url);
     curl_setopt_array($ch, [
         CURLOPT_POST           => true,
@@ -65,8 +65,11 @@ function append_row(array $values): void {
 }
 
 function build_row(string $event, array $p): array {
-    $p = $payload['data'] ?? $payload;
-    $get = fn($keys, $default = '') => array_reduce(explode('.', $keys), fn($carry, $key) => is_array($carry) ? ($carry[$key] ?? $default) : $default, $p);
+    $get = fn($keys, $default = '') => array_reduce(
+        explode('.', $keys),
+        fn($carry, $key) => is_array($carry) ? ($carry[$key] ?? $default) : $default,
+        $p
+    );
     $notes = match($event) {
         'order.created' => 'New order', 'order.updated' => 'Order updated', 'order.deleted' => 'Order deleted',
         'order.status.changed' => 'Status → ' . $get('status'), 'invoice.paid' => 'Payment confirmed',
@@ -76,8 +79,32 @@ function build_row(string $event, array $p): array {
         'form.intake.submitted' => 'Intake form', 'orderform.submitted' => 'Order form',
         'task.completed' => 'Task done', 'task.reopened' => 'Task reopened', default => $event,
     };
-    return [date('Y-m-d H:i:s'), $event, $get('id') ?: $get('order.id'), $get('client.name') ?: $get('contact.name'), $get('client.email') ?: $get('contact.email'), $get('total') ?: $get('amount'), $get('currency') ?: 'USD', $get('status'), $get('product.name') ?: $get('items.0.name'), $notes];
+    $form_data = !empty($p['form_data']) ? json_encode($p['form_data'], JSON_UNESCAPED_UNICODE) : '';
+    return [
+        date('Y-m-d H:i:s'),
+        $event,
+        $get('id'),
+        $get('client.name'),
+        $get('client.email'),
+        $get('client.company'),
+        $get('client.phone'),
+        $get('service'),
+        $get('status'),
+        $get('price'),
+        $get('currency') ?: 'USD',
+        $get('paysys'),
+        $get('invoice_id') ?: $get('invoice.id'),
+        $get('invoice.status'),
+        $get('date_added'),
+        $get('date_due'),
+        $get('quantity'),
+        $get('note'),
+        $form_data,
+        $get('invoice.view_link'),
+        $notes,
+    ];
 }
+
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') send_response(405, 'Method not allowed');
 $raw = file_get_contents('php://input');
