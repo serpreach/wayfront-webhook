@@ -5,6 +5,7 @@ define('SPREADSHEET_ID',       '13GowsP1BytWKaQwJb76jE1j346HxJ_rn1XEjvEj2J0Q');
 define('SHEET_NAME', 'Events');
 define('LOG_FILE',   '/var/www/html/webhook_log.txt');
 log_it("HEADERS: " . json_encode(getallheaders()));
+log_it("HEADERS: " . json_encode(getallheaders()));
 
 function log_it(string $msg): void {
     file_put_contents(LOG_FILE, '[' . date('Y-m-d H:i:s') . '] ' . $msg . "\n", FILE_APPEND);
