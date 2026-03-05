@@ -136,4 +136,6 @@ log_it("Received: $event");
 log_it("PAYLOAD: $raw");
 
 append_row(build_row($event, $payload));
+require_once '/var/www/html/send_email.php';
+if (!empty($payload['data']['form_data'])) send_order_email($payload['data'], $event);
 send_response(200, 'OK');
